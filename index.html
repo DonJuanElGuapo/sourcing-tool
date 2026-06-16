@@ -1,13 +1,17 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sourcing Cam Companion</title>
-    <!-- Tailwind CSS for modern mobile UI -->
-    <script src="https://tailwindcss.com"></script>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          rel="stylesheet">
+
     <style>
         body {
             -webkit-tap-highlight-color: transparent;
@@ -22,377 +26,511 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 sticky top-0 z-50 shadow-md flex justify-between items-center">
-        <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
-            <span class="text-emerald-400"><i class="fa-solid fa-tags"></i></span> 
-            Sourcing Cam Companion
-        </h1>
-        <button onclick="toggleSettings()" class="text-slate-400 hover:text-white p-2">
-            <i class="fa-solid fa-gear text-lg"></i>
+<!-- Header -->
+<header
+    class="bg-slate-800 border-b border-slate-700 py-4 px-6 sticky top-0 z-50 shadow-md flex justify-between items-center">
+    <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
+        <span class="text-emerald-400"><i class="fa-solid fa-tags"></i></span>
+        Sourcing Cam Companion
+    </h1>
+    <button onclick="toggleSettings()" class="text-slate-400 hover:text-white p-2">
+        <i class="fa-solid fa-gear text-lg"></i>
+    </button>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow p-4 max-w-md mx-auto w-full space-y-4 pb-20">
+
+    <!-- Settings Drawer -->
+    <div id="settingsPanel"
+         class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3 shadow-xl transition-all duration-300">
+        <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider">
+                AI Power-Up Settings
+            </h3>
+            <button onclick="toggleSettings()" class="text-slate-400 text-xs">Close</button>
+        </div>
+        <p class="text-xs text-slate-300">
+            Paste a free Google Gemini API Key here to enable automated photo analysis.
+            Your key is stored locally on your phone.
+        </p>
+        <div>
+            <label class="block text-[10px] uppercase font-semibold text-slate-400 mb-1">
+                Gemini API Key
+            </label>
+            <input type="password"
+                   id="apiKeyInput"
+                   placeholder="Paste AI key (AI_ZaSy...)"
+                   oninput="saveSettings()"
+                   class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 px-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
+        </div>
+        <p class="text-[11px] text-indigo-300">
+            <a href="https://aistudio.google.com/" target="_blank" class="underline">
+                Click here to get a free API Key in 30 seconds
+                <i class="fa-solid fa-external-link text-[9px]"></i>
+            </a>
+        </p>
+    </div>
+
+    <!-- Live Camera Scan Trigger -->
+    <div
+        class="bg-gradient-to-br from-indigo-900 to-indigo-950 rounded-2xl p-5 border border-indigo-500/30 shadow-lg text-center space-y-3">
+        <div class="space-y-1">
+            <h2 class="text-base font-bold text-indigo-200">Snap & Analyze Any Item</h2>
+            <p class="text-xs text-slate-400">
+                Uses AI + live resale comps to estimate if this piece is worth picking up.
+            </p>
+        </div>
+
+        <!-- Android-friendly camera input -->
+        <input
+            type="file"
+            accept="image/*;capture=camera"
+            capture="environment"
+            id="cameraInput"
+            class="hidden"
+            onchange="handlePhotoUpload(event)">
+
+        <button onclick="triggerCamera()"
+                class="ios-bounce w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-3 transition duration-200 shadow-lg shadow-indigo-500/20">
+            <i class="fa-solid fa-camera text-xl animate-pulse"></i>
+            <span>📷 CAPTURE CLOTHING</span>
         </button>
-    </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow p-4 max-w-md mx-auto w-full space-y-4 pb-20">
-
-        <!-- Settings Drawer (Hidden by default) -->
-        <div id="settingsPanel" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-4 space-y-3 shadow-xl transition-all duration-300">
-            <div class="flex justify-between items-center">
-                <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider">AI Power-Up Settings</h3>
-                <button onclick="toggleSettings()" class="text-slate-400 text-xs">Close</button>
-            </div>
-            <p class="text-xs text-slate-300">
-                Paste a free Google Gemini API Key here to enable automated photo analysis. Your key is stored safely on your phone.
-            </p>
-            <div>
-                <label class="block text-[10px] uppercase font-semibold text-slate-400 mb-1">Gemini API Key</label>
-                <input type="password" id="apiKeyInput" placeholder="Paste AI key (AI_ZaSy...)" oninput="saveSettings()" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 px-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
-            </div>
-            <p class="text-[11px] text-indigo-300">
-                <a href="https://aistudio.google.com/" target="_blank" class="underline">Click here to get a free API Key in 30 seconds <i class="fa-solid fa-external-link text-[9px]"></i></a>
-            </p>
+        <!-- Loading overlay status -->
+        <div id="loadingStatus"
+             class="hidden text-slate-300 text-xs flex items-center justify-center gap-2 py-2">
+            <i class="fa-solid fa-spinner animate-spin text-indigo-400 text-sm"></i>
+            <span id="loadingMessage">Reading visual tag data...</span>
         </div>
-        
-        <!-- Live Camera Scan Trigger -->
-        <div class="bg-gradient-to-br from-indigo-900 to-indigo-950 rounded-2xl p-5 border border-indigo-500/30 shadow-lg text-center space-y-3">
-            <div class="space-y-1">
-                <h2 class="text-base font-bold text-indigo-200">Snap & Analyze Any Item</h2>
-                <p class="text-xs text-slate-400">Uses AI to instantly estimate resale comps for any brand.</p>
-            </div>
-            
-            <input type="file" accept="image/*" capture="camera" id="cameraInput" class="hidden" onchange="handlePhotoUpload(event)">
-            
-            <button onclick="triggerCamera()" class="ios-bounce w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-3 transition duration-200 shadow-lg shadow-indigo-500/20">
-                <i class="fa-solid fa-camera text-xl animate-pulse"></i> 
-                <span>📷 CAPTURE CLOTHING</span>
-            </button>
+    </div>
 
-            <!-- Loading overlay status -->
-            <div id="loadingStatus" class="hidden text-slate-300 text-xs flex items-center justify-center gap-2 py-2">
-                <i class="fa-solid fa-spinner animate-spin text-indigo-400 text-sm"></i>
-                <span id="loadingMessage">Reading visual tag data...</span>
-            </div>
+    <!-- Calculator Form & Target Settings -->
+    <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-lg space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Target Thresholds
+            </h2>
+            <span id="aiLabel"
+                  class="hidden bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                AI Active
+            </span>
         </div>
 
-        <!-- Calculator Form & Target Settings -->
-        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-lg space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Target Thresholds</h2>
-                <span id="aiLabel" class="hidden bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-bold px-2.5 py-0.5 rounded-full">AI Active</span>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Buy Cost ($)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3 text-slate-400 text-sm">$</span>
-                        <input type="number" id="buyCost" value="5.00" step="0.50" oninput="runCalculations()" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 text-white focus:outline-none focus:border-indigo-500 font-semibold">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Target Profit ($)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3 text-slate-400 text-sm">$</span>
-                        <input type="number" id="targetProfit" value="15.00" step="1.00" oninput="runCalculations()" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 text-white focus:outline-none focus:border-indigo-500 font-semibold">
-                    </div>
-                </div>
-            </div>
-
+        <div class="grid grid-cols-2 gap-3">
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Estimated Resell Comp ($)</label>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Buy Cost ($)</label>
                 <div class="relative">
-                    <span class="absolute left-3 top-3.5 text-slate-400 text-lg font-bold">$</span>
-                    <input type="number" id="estValue" placeholder="Enter average comp price..." oninput="runCalculations()" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-8 pr-3 text-white text-lg font-bold focus:outline-none focus:border-indigo-500 placeholder-slate-500">
+                    <span class="absolute left-3 top-3 text-slate-400 text-sm">$</span>
+                    <input type="number"
+                           id="buyCost"
+                           value="5.00"
+                           step="0.50"
+                           oninput="runCalculations()"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 text-white focus:outline-none focus:border-indigo-500 font-semibold">
                 </div>
-                <p id="scannedItemTitle" class="text-xs text-indigo-300 mt-1.5 hidden italic"></p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Target Profit ($)</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-3 text-slate-400 text-sm">$</span>
+                    <input type="number"
+                           id="targetProfit"
+                           value="15.00"
+                           step="1.00"
+                           oninput="runCalculations()"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 text-white focus:outline-none focus:border-indigo-500 font-semibold">
+                </div>
             </div>
         </div>
 
-        <!-- Dynamic Verdict Panel -->
-        <div id="verdictPanel" class="hidden transition-all duration-300">
-            <!-- Dynamic Green or Red state injected here -->
-        </div>
-
-        <!-- Sourcing History / Log -->
-        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-lg">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Sourcing History</h2>
-                <button onclick="clearHistory()" class="text-xs text-rose-400 hover:text-rose-300 font-semibold">Clear</button>
+        <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">
+                Estimated Resell Comp ($)
+            </label>
+            <div class="relative">
+                <span class="absolute left-3 top-3.5 text-slate-400 text-lg font-bold">$</span>
+                <input type="number"
+                       id="estValue"
+                       placeholder="AI or manual comp..."
+                       oninput="runCalculations()"
+                       class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-8 pr-3 text-white text-lg font-bold focus:outline-none focus:border-indigo-500 placeholder-slate-500">
             </div>
-            <div id="historyContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                <p class="text-xs text-slate-500 text-center py-4">No items scanned yet.</p>
-            </div>
+            <p id="scannedItemTitle"
+               class="text-xs text-indigo-300 mt-1.5 hidden italic"></p>
         </div>
+    </div>
 
-    </main>
+    <!-- Dynamic Verdict Panel -->
+    <div id="verdictPanel" class="hidden transition-all duration-300"></div>
 
-    <!-- Image compression canvas (hidden) -->
-    <canvas id="compressionCanvas" class="hidden"></canvas>
+    <!-- Sourcing History / Log -->
+    <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-lg">
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Today's Sourcing History
+            </h2>
+            <button onclick="clearHistory()"
+                    class="text-xs text-rose-400 hover:text-rose-300 font-semibold">
+                Clear
+            </button>
+        </div>
+        <div id="historyContainer"
+             class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <p class="text-xs text-slate-500 text-center py-4">
+                No items scanned yet.
+            </p>
+        </div>
+    </div>
 
-    <script>
-        // Init state
-        let history = JSON.parse(localStorage.getItem('sourcingHistory')) || [];
-        let detectedItemName = "";
+</main>
 
-        // On Load, check for existing API key
-        window.onload = function() {
-            const savedKey = localStorage.getItem('geminiApiKey');
-            if (savedKey) {
-                document.getElementById('apiKeyInput').value = savedKey;
-                document.getElementById('aiLabel').classList.remove('hidden');
+<!-- Image compression canvas (hidden) -->
+<canvas id="compressionCanvas" class="hidden"></canvas>
+
+<script>
+    // State
+    let history = JSON.parse(localStorage.getItem('sourcingHistory')) || [];
+    let detectedItemName = "";
+    let lastAIConfidence = 0;
+
+    // On Load
+    window.onload = function () {
+        const savedKey = localStorage.getItem('geminiApiKey');
+        if (savedKey) {
+            document.getElementById('apiKeyInput').value = savedKey;
+            document.getElementById('aiLabel').classList.remove('hidden');
+        }
+        renderHistory();
+    };
+
+    function toggleSettings() {
+        const panel = document.getElementById('settingsPanel');
+        panel.classList.toggle('hidden');
+    }
+
+    function saveSettings() {
+        const key = document.getElementById('apiKeyInput').value.trim();
+        localStorage.setItem('geminiApiKey', key);
+        const aiLabel = document.getElementById('aiLabel');
+        if (key) {
+            aiLabel.classList.remove('hidden');
+        } else {
+            aiLabel.classList.add('hidden');
+        }
+    }
+
+    function triggerCamera() {
+        document.getElementById('cameraInput').click();
+    }
+
+    // Live profitability calculations
+    function runCalculations() {
+        const buyCost = parseFloat(document.getElementById('buyCost').value) || 0;
+        const targetProfit = parseFloat(document.getElementById('targetProfit').value) || 0;
+        const estValue = parseFloat(document.getElementById('estValue').value) || 0;
+        const panel = document.getElementById('verdictPanel');
+
+        if (estValue <= 0) {
+            panel.classList.add('hidden');
+            panel.innerHTML = "";
+            return;
+        }
+
+        panel.classList.remove('hidden');
+
+        const platformFees = estValue * 0.20;
+        const projectedProfit = estValue - platformFees - buyCost;
+        const meetsTarget = projectedProfit >= targetProfit;
+
+        const finalLabel = detectedItemName || "Unnamed Clothing Item";
+
+        let verdictHTML = "";
+        let isBuy = false;
+
+        // Confidence-aware logic
+        if (lastAIConfidence && lastAIConfidence < 0.5) {
+            verdictHTML = `
+                <div class="bg-amber-950 border-2 border-amber-500 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 text-amber-800 opacity-20 text-8xl pointer-events-none">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                    <div class="text-amber-400 text-4xl mb-2"><i class="fa-solid fa-circle-question"></i></div>
+                    <h3 class="text-xl font-bold text-amber-300">UNSURE - DOUBLE CHECK</h3>
+                    <p class="text-sm text-amber-400 font-medium mt-1">
+                        AI confidence is low. Manually verify comps.
+                    </p>
+                    <div class="mt-3 text-xs text-slate-400 border-t border-amber-800/50 pt-2 space-y-1">
+                        <div class="flex justify-between"><span>Est. Sale Price:</span><span>$${estValue.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Est. Platform Fees (20%):</span><span>-$${platformFees.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Buy Cost:</span><span>-$${buyCost.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Projected Profit:</span><span>$${projectedProfit.toFixed(2)}</span></div>
+                    </div>
+                    <button onclick="saveToHistory(${meetsTarget}, ${projectedProfit}, ${estValue}, '${finalLabel}')"
+                            class="ios-bounce mt-4 w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-xl text-sm">
+                        Save to Sourcing Log
+                    </button>
+                </div>
+            `;
+        } else if (meetsTarget) {
+            isBuy = true;
+            verdictHTML = `
+                <div class="bg-emerald-950 border-2 border-emerald-500 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 text-emerald-800 opacity-20 text-8xl pointer-events-none">
+                        <i class="fa-solid fa-thumbs-up"></i>
+                    </div>
+                    <div class="text-emerald-400 text-4xl mb-2"><i class="fa-solid fa-circle-check"></i></div>
+                    <h3 class="text-xl font-bold text-emerald-300">THUMBS UP - BUY</h3>
+                    <p class="text-sm text-emerald-400 font-medium mt-1">
+                        Projected Net Profit: $${projectedProfit.toFixed(2)}
+                    </p>
+                    <div class="mt-3 text-xs text-slate-400 border-t border-emerald-800/50 pt-2 space-y-1">
+                        <div class="flex justify-between"><span>Est. Sale Price:</span><span>$${estValue.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Est. Platform Fees (20%):</span><span>-$${platformFees.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Buy Cost:</span><span>-$${buyCost.toFixed(2)}</span></div>
+                    </div>
+                    <button onclick="saveToHistory(true, ${projectedProfit}, ${estValue}, '${finalLabel}')"
+                            class="ios-bounce mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-sm">
+                        Save to Sourcing Log
+                    </button>
+                </div>
+            `;
+        } else {
+            verdictHTML = `
+                <div class="bg-rose-950 border-2 border-rose-500 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 text-rose-800 opacity-20 text-8xl pointer-events-none">
+                        <i class="fa-solid fa-thumbs-down"></i>
+                    </div>
+                    <div class="text-rose-400 text-4xl mb-2"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <h3 class="text-xl font-bold text-rose-300">THUMBS DOWN - PASS</h3>
+                    <p class="text-sm text-rose-400 font-medium mt-1">
+                        Projected Net Profit: $${projectedProfit.toFixed(2)}
+                    </p>
+                    <p class="text-xs text-rose-400/80 mt-1">
+                        Misses your $${targetProfit.toFixed(2)} target
+                    </p>
+                    <div class="mt-3 text-xs text-slate-400 border-t border-rose-800/50 pt-2 space-y-1">
+                        <div class="flex justify-between"><span>Est. Sale Price:</span><span>$${estValue.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Est. Platform Fees (20%):</span><span>-$${platformFees.toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span>Buy Cost:</span><span>-$${buyCost.toFixed(2)}</span></div>
+                    </div>
+                    <button onclick="saveToHistory(false, ${projectedProfit}, ${estValue}, '${finalLabel}')"
+                            class="ios-bounce mt-4 w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded-xl text-sm">
+                        Save to Sourcing Log
+                    </button>
+                </div>
+            `;
+        }
+
+        panel.innerHTML = verdictHTML;
+    }
+
+    // Camera capture logic & Compression
+    function handlePhotoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const apiKey = localStorage.getItem('geminiApiKey');
+        if (!apiKey) {
+            alert("AI Key missing! Tap the gear icon and paste your free Gemini API key first.");
+            event.target.value = "";
+            return;
+        }
+
+        const loader = document.getElementById('loadingStatus');
+        loader.classList.remove('hidden');
+        setLoadingMsg("Optimizing image quality...");
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.getElementById('compressionCanvas');
+                const ctx = canvas.getContext('2d');
+
+                let width = img.width;
+                let height = img.height;
+                const max_dim = 800;
+                if (width > height && width > max_dim) {
+                    height *= max_dim / width;
+                    width = max_dim;
+                } else if (height > max_dim) {
+                    width *= max_dim / height;
+                    height = max_dim;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const base64Data = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+                analyzeWithAI(base64Data, apiKey);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function setLoadingMsg(text) {
+        document.getElementById('loadingMessage').innerText = text;
+    }
+
+    // Extract JSON safely from AI text
+    function extractJSON(text) {
+        const match = text.match(/\{[\s\S]*\}/);
+        if (!match) {
+            throw new Error("No JSON found in AI response");
+        }
+        return JSON.parse(match[0]);
+    }
+
+    // Gemini Vision call
+    async function analyzeWithAI(base64Image, apiKey) {
+        setLoadingMsg("Consulting Gemini AI with live resale comps...");
+
+        const prompt = `
+You are a resale market analyst for secondhand clothing.
+1. Identify the clothing item in the photo (brand + model + style).
+2. Use your knowledge and web reasoning to approximate recent sold prices on Poshmark, Depop, eBay, Mercari, and Grailed.
+3. Return ONLY raw JSON (no markdown, no commentary):
+
+{
+  "brand": "",
+  "item_name": "",
+  "avg_price": 0,
+  "low_price": 0,
+  "high_price": 0,
+  "confidence": 0.0
+}
+        `.trim();
+
+        const payload = {
+            contents: [{
+                parts: [
+                    {text: prompt},
+                    {
+                        inlineData: {
+                            mimeType: "image/jpeg",
+                            data: base64Image
+                        }
+                    }
+                ]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json"
             }
-            renderHistory();
         };
 
-        function toggleSettings() {
-            const panel = document.getElementById('settingsPanel');
-            panel.classList.toggle('hidden');
-        }
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
 
-        function saveSettings() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            localStorage.setItem('geminiApiKey', key);
-            const aiLabel = document.getElementById('aiLabel');
-            if (key) {
-                aiLabel.classList.remove('hidden');
-            } else {
-                aiLabel.classList.add('hidden');
-            }
-        }
-
-        function triggerCamera() {
-            document.getElementById('cameraInput').click();
-        }
-
-        // Live profitability calculations
-        function runCalculations() {
-            const buyCost = parseFloat(document.getElementById('buyCost').value) || 0;
-            const targetProfit = parseFloat(document.getElementById('targetProfit').value) || 0;
-            const estValue = parseFloat(document.getElementById('estValue').value) || 0;
-            const panel = document.getElementById('verdictPanel');
-
-            if (estValue <= 0) {
-                panel.classList.add('hidden');
-                return;
+            if (!response.ok) {
+                throw new Error("Invalid API Key or API limit reached.");
             }
 
-            panel.classList.remove('hidden');
+            const result = await response.json();
+            const responseText = result.candidates[0].content.parts[0].text || "";
 
-            // Fee math: 20% flat reseller fee cut
-            const platformFees = estValue * 0.20;
-            const projectedProfit = estValue - platformFees - buyCost;
-            const isProfitable = projectedProfit >= targetProfit;
+            const aiData = extractJSON(responseText);
 
-            const finalLabel = detectedItemName || "Unnamed Clothing Item";
+            const brand = (aiData.brand || "").trim();
+            const itemName = (aiData.item_name || "").trim();
+            const avgPrice = parseFloat(aiData.avg_price) || 0;
+            const confidence = typeof aiData.confidence === "number"
+                ? aiData.confidence
+                : parseFloat(aiData.confidence) || 0;
 
-            if (isProfitable) {
-                panel.innerHTML = `
-                    <div class="bg-emerald-950 border-2 border-emerald-500 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
-                        <div class="absolute -right-6 -bottom-6 text-emerald-800 opacity-20 text-8xl pointer-events-none">
-                            <i class="fa-solid fa-thumbs-up"></i>
-                        </div>
-                        <div class="text-emerald-400 text-4xl mb-2"><i class="fa-solid fa-circle-check"></i></div>
-                        <h3 class="text-xl font-bold text-emerald-300">THUMBS UP - BUY</h3>
-                        <p class="text-sm text-emerald-400 font-medium mt-1">Projected Net Profit: $${projectedProfit.toFixed(2)}</p>
-                        <div class="mt-3 text-xs text-slate-400 border-t border-emerald-800/50 pt-2 space-y-1">
-                            <div class="flex justify-between"><span>Est. Sale Price:</span><span>$${estValue.toFixed(2)}</span></div>
-                            <div class="flex justify-between"><span>Est. Platform Fees (20%):</span><span>-$${platformFees.toFixed(2)}</span></div>
-                            <div class="flex justify-between"><span>Buy Cost:</span><span>-$${buyCost.toFixed(2)}</span></div>
-                        </div>
-                        <button onclick="saveToHistory(true, ${projectedProfit}, ${estValue}, '${finalLabel}')" class="ios-bounce mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-sm">
-                            Save to Sourcing Log
-                        </button>
-                    </div>
-                `;
-            } else {
-                panel.innerHTML = `
-                    <div class="bg-rose-950 border-2 border-rose-500 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
-                        <div class="absolute -right-6 -bottom-6 text-rose-800 opacity-20 text-8xl pointer-events-none">
-                            <i class="fa-solid fa-thumbs-down"></i>
-                        </div>
-                        <div class="text-rose-400 text-4xl mb-2"><i class="fa-solid fa-circle-xmark"></i></div>
-                        <h3 class="text-xl font-bold text-rose-300">THUMBS DOWN - PASS</h3>
-                        <p class="text-sm text-rose-400 font-medium mt-1">Projected Net Profit: $${projectedProfit.toFixed(2)}</p>
-                        <p class="text-xs text-rose-400/80 mt-1">Misses your $${targetProfit.toFixed(2)} target</p>
-                        <div class="mt-3 text-xs text-slate-400 border-t border-rose-800/50 pt-2 space-y-1">
-                            <div class="flex justify-between"><span>Est. Sale Price:</span><span>$${estValue.toFixed(2)}</span></div>
-                            <div class="flex justify-between"><span>Est. Platform Fees (20%):</span><span>-$${platformFees.toFixed(2)}</span></div>
-                            <div class="flex justify-between"><span>Buy Cost:</span><span>-$${buyCost.toFixed(2)}</span></div>
-                        </div>
-                        <button onclick="saveToHistory(false, ${projectedProfit}, ${estValue}, '${finalLabel}')" class="ios-bounce mt-4 w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded-xl text-sm">
-                            Save to Sourcing Log
-                        </button>
-                    </div>
-                `;
-            }
-        }
+            lastAIConfidence = confidence;
 
-        // Camera capture logic & Compression
-        function handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            detectedItemName = (brand || itemName)
+                ? `${brand} ${itemName}`.trim()
+                : "Unknown Clothing Item";
 
-            const apiKey = localStorage.getItem('geminiApiKey');
-            if (!apiKey) {
-                alert("AI Key missing! Click the Settings gear at the top right to paste your free Gemini API key first.");
-                return;
+            if (avgPrice > 0) {
+                document.getElementById('estValue').value = avgPrice.toFixed(2);
             }
 
-            const loader = document.getElementById('loadingStatus');
-            loader.classList.remove('hidden');
-            setLoadingMsg("Optimizing image quality...");
+            const titleLabel = document.getElementById('scannedItemTitle');
+            titleLabel.innerText = `Matched: ${detectedItemName} • Avg: $${avgPrice.toFixed(2)} • Conf: ${(confidence * 100).toFixed(0)}%`;
+            titleLabel.classList.remove('hidden');
 
-            // Compress image to ensure reliable uploading
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.getElementById('compressionCanvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Cap resolution to 800px max side for speed
-                    let width = img.width;
-                    let height = img.height;
-                    const max_dim = 800;
-                    if (width > height && width > max_dim) {
-                        height *= max_dim / width;
-                        width = max_dim;
-                    } else if (height > max_dim) {
-                        width *= max_dim / height;
-                        height = max_dim;
-                    }
+            runCalculations();
 
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Convert to base64
-                    const base64Data = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-                    analyzeWithAI(base64Data, apiKey);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        } catch (err) {
+            console.error(err);
+            alert("AI parsing failed. Check your internet connection and API key, then try again.");
+        } finally {
+            document.getElementById('loadingStatus').classList.add('hidden');
+            document.getElementById('cameraInput').value = "";
+        }
+    }
+
+    // History Management
+    function saveToHistory(isBuy, profit, estVal, label) {
+        const finalLabel = prompt("Verify details to save:", label || "Unknown Item");
+        if (finalLabel === null) return;
+
+        const item = {
+            id: Date.now(),
+            label: finalLabel || "Unnamed Item",
+            isBuy: !!isBuy,
+            profit: profit,
+            estVal: estVal,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
+        };
+
+        history.unshift(item);
+        localStorage.setItem('sourcingHistory', JSON.stringify(history));
+        renderHistory();
+
+        document.getElementById('estValue').value = "";
+        document.getElementById('scannedItemTitle').classList.add('hidden');
+        document.getElementById('verdictPanel').classList.add('hidden');
+        document.getElementById('verdictPanel').innerHTML = "";
+        detectedItemName = "";
+        lastAIConfidence = 0;
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('historyContainer');
+        if (history.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No items scanned yet.</p>`;
+            return;
         }
 
-        function setLoadingMsg(text) {
-            document.getElementById('loadingMessage').innerText = text;
-        }
-
-        // Actual client-side API Call to Gemini Vision
-        async function analyzeWithAI(base64Image, apiKey) {
-            setLoadingMsg("Consulting Gemini AI...");
-            
-            const prompt = "Identify this clothing item. Tell me its brand name and item style (e.g. Levi's 501 High Rise Jeans). Provide a highly realistic estimated average resale price (USD) on sites like eBay, Poshmark, and Depop. You must respond ONLY in a raw JSON format (no markdown blocks, no formatting outside raw JSON): {\"brand\": \"\", \"item_name\": \"\", \"estimated_value\": 35.00}";
-            
-            const payload = {
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        {
-                            inlineData: {
-                                mimeType: "image/jpeg",
-                                data: base64Image
-                            }
-                        }
-                    ]
-                }],
-                generationConfig: {
-                    responseMimeType: "application/json"
-                }
-            };
-
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error("Invalid API Key or API limit reached.");
-                }
-
-                const result = await response.json();
-                const responseText = result.candidates[0].content.parts[0].text;
-                
-                // Parse clean JSON output
-                const aiData = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
-                
-                detectedItemName = `${aiData.brand} ${aiData.item_name}`;
-                document.getElementById('estValue').value = parseFloat(aiData.estimated_value) || 0;
-                
-                const titleLabel = document.getElementById('scannedItemTitle');
-                titleLabel.innerText = `Matched: ${detectedItemName}`;
-                titleLabel.classList.remove('hidden');
-
-                runCalculations();
-
-            } catch (err) {
-                console.error(err);
-                alert("AI parsing failed. Please check your internet connection or verify your API key is correct.");
-            } finally {
-                document.getElementById('loadingStatus').classList.add('hidden');
-                document.getElementById('cameraInput').value = ""; // reset input
-            }
-        }
-
-        // History Management
-        function saveToHistory(isBuy, profit, estVal, label) {
-            const finalLabel = prompt("Verify details to save:", label || "Unknown Item");
-            if (finalLabel === null) return;
-            
-            const item = {
-                id: Date.now(),
-                label: finalLabel || "Unnamed Item",
-                isBuy: isBuy,
-                profit: profit,
-                estVal: estVal,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            };
-
-            history.unshift(item);
-            localStorage.setItem('sourcingHistory', JSON.stringify(history));
-            renderHistory();
-            
-            // Clean interface for next snap
-            document.getElementById('estValue').value = "";
-            document.getElementById('scannedItemTitle').classList.add('hidden');
-            document.getElementById('verdictPanel').classList.add('hidden');
-            detectedItemName = "";
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('historyContainer');
-            if (history.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No items scanned yet.</p>`;
-                return;
-            }
-
-            container.innerHTML = history.map(item => `
-                <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex items-center justify-between text-xs">
-                    <div class="max-w-[70%]">
-                        <div class="font-bold text-slate-200 truncate">${item.label}</div>
-                        <div class="text-slate-500 mt-0.5">Est. Sale: $${item.estVal.toFixed(2)} • ${item.time}</div>
-                    </div>
-                    <div class="text-right">
-                        <span class="inline-block px-2.5 py-1 rounded-full font-bold ${item.isBuy ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'}">
-                            ${item.isBuy ? '👍 Buy' : '👎 Pass'} ($${item.profit.toFixed(0)})
-                        </span>
+        container.innerHTML = history.map(item => `
+            <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex items-center justify-between text-xs">
+                <div class="max-w-[70%]">
+                    <div class="font-bold text-slate-200 truncate">${item.label}</div>
+                    <div class="text-slate-500 mt-0.5">
+                        Est. Sale: $${item.estVal.toFixed(2)} • ${item.time}
                     </div>
                 </div>
-            `).join('');
-        }
+                <div class="text-right">
+                    <span class="inline-block px-2.5 py-1 rounded-full font-bold
+                        ${item.isBuy
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'}">
+                        ${item.isBuy ? '👍 Buy' : '👎 Pass'} ($${item.profit.toFixed(0)})
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
 
-        function clearHistory() {
-            if (confirm("Are you sure you want to clear your sourcing history?")) {
-                history = [];
-                localStorage.removeItem('sourcingHistory');
-                renderHistory();
-            }
+    function clearHistory() {
+        if (confirm("Are you sure you want to clear your sourcing history?")) {
+            history = [];
+            localStorage.removeItem('sourcingHistory');
+            renderHistory();
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
