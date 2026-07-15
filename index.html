@@ -36,7 +36,6 @@
     async function analyzeWithAI(base64Image, apiKey) {
         document.getElementById('loadingStatus').classList.remove('hidden');
         try {
-            // Using the standard model path. 
             const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
             const response = await fetch(url, {
@@ -45,7 +44,7 @@
                 body: JSON.stringify({
                     contents: [{ 
                         parts: [
-                            {text: "Analyze this item. Return ONLY JSON: {\"brand\": \"\", \"item_name\": \"\", \"avg_price\": 0}"}, 
+                            {text: "Analyze this item. Return ONLY raw JSON (no markdown formatting): {\"brand\": \"\", \"item_name\": \"\", \"avg_price\": 0}"}, 
                             {inlineData: {mimeType: "image/jpeg", data: base64Image}}
                         ] 
                     }]
@@ -53,14 +52,18 @@
             });
 
             const data = await response.json();
+            console.log("Raw AI Response:", data);
+
             if (!response.ok) throw new Error(data.error?.message || "API request failed");
             
-            const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "");
-            const aiData = JSON.parse(text);
+            const rawText = data.candidates[0].content.parts[0].text;
+            const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+            const aiData = JSON.parse(cleanJson);
             
             document.getElementById('estValue').value = aiData.avg_price;
             runCalculations();
         } catch (err) {
+            console.error("AI Error:", err);
             alert("AI Error: " + err.message);
         } finally {
             document.getElementById('loadingStatus').classList.add('hidden');
