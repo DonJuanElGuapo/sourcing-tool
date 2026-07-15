@@ -2,99 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sourcing Cam Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-4">
-
-<header class="flex justify-between items-center pb-6">
-    <h1 class="text-lg font-bold"><i class="fa-solid fa-tags text-emerald-400"></i> Sourcing Cam</h1>
-    <button onclick="document.getElementById('settingsPanel').classList.toggle('hidden')" class="text-slate-400"><i class="fa-solid fa-gear"></i></button>
-</header>
-
-<div id="settingsPanel" class="hidden bg-slate-800 p-4 rounded-xl mb-4">
-    <input type="password" id="apiKeyInput" placeholder="Paste NEW API Key" oninput="saveSettings()" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white">
-</div>
-
-<div class="bg-indigo-900 p-6 rounded-2xl text-center space-y-4">
-    <input type="file" accept="image/*" capture="environment" id="cameraInput" class="hidden" onchange="handlePhotoUpload(event)">
-    <button onclick="document.getElementById('cameraInput').click()" class="w-full bg-indigo-500 font-bold py-4 rounded-xl">📷 CAPTURE</button>
-    <div id="loadingStatus" class="hidden text-indigo-200 text-sm"><i class="fa-solid fa-spinner animate-spin"></i> Processing...</div>
-</div>
-
-<div class="mt-4 space-y-4">
-    <input type="number" id="estValue" placeholder="AI Value..." oninput="runCalculations()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-white font-bold text-xl">
-    <div id="verdictPanel" class="text-center font-bold p-4 rounded-xl hidden"></div>
-</div>
+    <div id="settingsPanel" class="hidden bg-slate-800 p-4 rounded-xl mb-4">
+        <input type="password" id="apiKeyInput" placeholder="Paste NEW API Key" oninput="saveSettings()" class="w-full bg-slate-900 p-2 text-white">
+    </div>
+    <button onclick="document.getElementById('cameraInput').click()" class="w-full bg-indigo-500 p-4 rounded-xl font-bold">📷 CAPTURE</button>
+    <input type="file" id="cameraInput" class="hidden" onchange="handlePhotoUpload(event)">
+    <input type="text" id="estValue" class="mt-4 w-full bg-slate-800 p-4 rounded-xl text-white font-bold text-xl" placeholder="AI Value...">
 
 <script>
     function saveSettings() { localStorage.setItem('geminiApiKey', document.getElementById('apiKeyInput').value.trim()); }
     window.onload = () => { document.getElementById('apiKeyInput').value = localStorage.getItem('geminiApiKey') || ''; };
 
     async function analyzeWithAI(base64Image, apiKey) {
-        document.getElementById('loadingStatus').classList.remove('hidden');
+        // Current stable model for high-performance tasks
+        const modelName = "gemini-2.5-flash"; 
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        
         try {
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-001:generateContent?key=${apiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    contents: [{ 
-                        parts: [
-                            {text: "Analyze this item. Return ONLY raw JSON (no markdown formatting): {\"brand\": \"\", \"item_name\": \"\", \"avg_price\": 0}"}, 
-                            {inlineData: {mimeType: "image/jpeg", data: base64Image}}
-                        ] 
-                    }]
+                    contents: [{ parts: [{text: "Return ONLY raw JSON: {\"brand\": \"\", \"item_name\": \"\", \"avg_price\": 0}"}, {inlineData: {mimeType: "image/jpeg", data: base64Image}} }]
                 })
             });
 
             const data = await response.json();
-            console.log("Raw AI Response:", data);
-
-            if (!response.ok) throw new Error(data.error?.message || "API request failed");
+            if (!response.ok) {
+                console.error("API Error Details:", data);
+                throw new Error(data.error?.message || "API request failed");
+            }
             
-            const rawText = data.candidates[0].content.parts[0].text;
-            const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-            const aiData = JSON.parse(cleanJson);
-            
+            const aiData = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
             document.getElementById('estValue').value = aiData.avg_price;
-            runCalculations();
         } catch (err) {
-            console.error("AI Error:", err);
             alert("AI Error: " + err.message);
-        } finally {
-            document.getElementById('loadingStatus').classList.add('hidden');
         }
     }
 
     function handlePhotoUpload(event) {
         const file = event.target.files[0];
-        const apiKey = localStorage.getItem('geminiApiKey');
-        if (!apiKey) return alert("Enter API Key in settings");
         const reader = new FileReader();
         reader.onload = (e) => {
+            const canvas = document.createElement('canvas');
             const img = new Image();
             img.onload = () => {
-                const canvas = document.createElement('canvas');
                 canvas.width = 800; canvas.height = 800 * (img.height / img.width);
                 canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                analyzeWithAI(canvas.toDataURL('image/jpeg', 0.8).split(',')[1], apiKey);
+                analyzeWithAI(canvas.toDataURL('image/jpeg', 0.8).split(',')[1], localStorage.getItem('geminiApiKey'));
             };
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
-    }
-
-    function runCalculations() {
-        const est = parseFloat(document.getElementById('estValue').value) || 0;
-        const panel = document.getElementById('verdictPanel');
-        if (est > 0) {
-            panel.classList.remove('hidden');
-            panel.className = "text-center font-bold p-4 rounded-xl bg-emerald-900";
-            panel.innerText = `Projected Value: $${est.toFixed(2)}`;
-        }
     }
 </script>
 </body>
